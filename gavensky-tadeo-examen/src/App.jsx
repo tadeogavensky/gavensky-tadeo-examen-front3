@@ -1,67 +1,99 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import Card from "./components/Card";
 
 function App() {
-  const [student, setStudent] = useState({});
+  const [student, setStudent] = useState({
+    name: "",
+    commission: "",
+    favourite_harry_potter_character: "",
+  });
 
   const [students, setStudents] = useState([]);
 
   const [errorMsg, setErrorMsg] = useState({
-    commission: "",
-    age: "",
+    firstInput: "",
+    secondInput: "",
+    general: "",
   });
 
   const [error, isError] = useState(false);
+
+  const [characters, setCharacters] = useState([{}]);
+
+  const url = "https://hp-api.onrender.com/api/characters";
 
   const handleSubmit = (e) => {
     e.preventDefault();
 
     if (error) {
-      return;
+      setErrorMsg((prevState) => ({
+        ...prevState,
+        general: "Por favor chequea que la información sea correcta",
+      }));
     } else {
+      console.log("student :>> ", student);
       setStudents((prevState) => [...prevState, student]);
     }
   };
 
-  const regexNumber = /^\d+$/;
+  const regex = /^[^\s][^\s]{2,}$/;
 
-  const handleComissionInput = (e) => {
-    if (!regexNumber.test(e.target.value)) {
+  const fetchApi = () => {
+    fetch(url)
+      .then((res) => res.json())
+      .then((data) => {
+        setCharacters(data);
+      });
+  };
+
+  useEffect(() => {
+    console.log("errorMsg :>> ", errorMsg);
+    fetchApi();
+  }, []);
+
+  const handleFirstInput = (e) => {
+    if (!regex.test(e.target.value)) {
       setErrorMsg((prevState) => ({
         ...prevState,
-        commission: "Commission input must be a number",
+        firstInput: "El nombre debe ser mayor a 3 caracteres",
       }));
+
       isError(true);
     } else {
       isError(false);
-      setErrorMsg((prevState) => ({
-        ...prevState,
-        commission: "",
-      }));
+      setErrorMsg((prevState) => {
+        ({ ...prevState, firstInput: "" });
+      });
+
       setStudent((prevState) => ({
         ...prevState,
-        commission: e.target.value,
+        name: e.target.value,
       }));
     }
   };
 
-  const handleAgeInput = (e) => {
-    if (!regexNumber.test(e.target.value)) {
-      setErrorMsg((prevState) => ({
-        ...prevState,
-        age: "Age input must be a number",
-      }));
+  const handleSecondInput = (e) => {
+    console.log('e.target.value.length :>> ', e.target.value.length);
+    if (e.target.value.length < 6) {
+      setErrorMsg((prevState) => {
+        ({
+          ...prevState,
+          secondInput: "El x debe ser mayor a 6 caracteres",
+        });
+      });
+      console.log('errorMsg.secondInput :>> ', errorMsg.secondInput);
+
       isError(true);
     } else {
       isError(false);
-      setErrorMsg((prevState) => ({
-        ...prevState,
-        age: "",
-      }));
+      setErrorMsg((prevState) => {
+        ({ ...prevState, secondInput: "" });
+      });
+
       setStudent((prevState) => ({
         ...prevState,
-        age: e.target.value,
+        commission: e.target.value,
       }));
     }
   };
@@ -72,7 +104,7 @@ function App() {
         <h1>Carga de estudiantes</h1>
         <form
           onSubmit={handleSubmit}
-          className="flex flex-col items-center  bg-white rounded-md w-[300px] shadow-md p-4"
+          className="flex flex-col items-center  bg-white rounded-md w-[300px] shadow-md p-4 gap-2"
         >
           <div className="flex flex-col">
             <label>Nombre</label>
@@ -81,12 +113,12 @@ function App() {
               placeholder=""
               className="border-gray-500 border-2 rounded-md  px-2"
               onChange={(e) => {
-                setStudent((prevState) => ({
-                  ...prevState,
-                  name: e.target.value,
-                }));
+                handleFirstInput(e);
               }}
             />
+            {errorMsg && errorMsg.firstInput && (
+              <span className="text-red-500">{errorMsg.firstInput}</span>
+            )}
           </div>
           <div className="flex flex-col">
             <label>Camada</label>
@@ -95,31 +127,43 @@ function App() {
               placeholder=""
               className="border-gray-500 border-2 rounded-md  px-2"
               onChange={(e) => {
-                handleComissionInput(e);
+                handleSecondInput(e);
               }}
             />
-            {errorMsg && (
-              <span className="text-red-500">{errorMsg.commission}</span>
+            {errorMsg && errorMsg.secondInput && (
+              <span className="text-red-500">{errorMsg.secondInput}</span>
             )}
           </div>
           <div className="flex flex-col">
-            <label>Edad</label>
-            <input
-              type="text"
-              placeholder=""
-              className="border-gray-500 border-2 rounded-md  px-2"
+            <label>Personaje de Harry Potter favorito</label>
+            <select
+              className="border-gray-500 border-2 rounded-md  px-2 py-1"
               onChange={(e) => {
-                handleAgeInput(e);
+                console.log("e.target.value :>> ", e.target.value);
+                setStudent((prevState) => ({
+                  ...prevState,
+                  favourite_harry_potter_character: e.target.value,
+                }));
               }}
-            />
-            {errorMsg && <span className="text-red-500">{errorMsg.age}</span>}
+            >
+              {characters.map((character, index) => {
+                return (
+                  <option key={index} value={character.name}>
+                    {character.name}
+                  </option>
+                );
+              })}
+            </select>
           </div>
-
           <button className="bg-blue-300 text-white rounded-md px-2 py-1 mt-3 hover:bg-blue-500 transition-all duration-300 ease-in-out">
             Agregar estudiante
           </button>
         </form>
       </div>
+
+      {errorMsg && errorMsg.general && (
+        <span className="text-red-500 font-bold">{errorMsg.general}</span>
+      )}
 
       <div className="grid grid-flow-row-dense grid-cols-3 gap-3">
         {students.map((student, index) => {
