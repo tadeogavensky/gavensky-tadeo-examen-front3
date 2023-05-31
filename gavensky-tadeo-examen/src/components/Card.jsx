@@ -4,23 +4,23 @@ const Card = (props) => {
   const color = props.wizard.color;
   let textColor;
 
-   const getLuminance = (color) => {
-    const rgb = color.startsWith("#") ? color.substring(1) : color;
-    const r = parseInt(rgb.substr(0, 2), 16) / 255;
-    const g = parseInt(rgb.substr(2, 2), 16) / 255;
-    const b = parseInt(rgb.substr(4, 2), 16) / 255;
+  if (props.wizard.color) {
+    const getLuminance = (color) => {
+      const rgb = color.substring(1);
+      const r = parseInt(rgb.substr(0, 2), 16) / 255;
+      const g = parseInt(rgb.substr(2, 2), 16) / 255;
+      const b = parseInt(rgb.substr(4, 2), 16) / 255;
 
-    const luminance = 0.2126 * r + 0.7152 * g + 0.0722 * b;
-    return luminance;
-  };
+      const luminance = 0.2126 * r + 0.7152 * g + 0.0722 * b;
+      return luminance;
+    };
 
-
-  if (getLuminance(color) < 0.5) {
-    textColor = "#FFFFFF"; 
-  } else {
-    textColor = "#000000"; 
+    if (getLuminance(color) < 0.5) {
+      textColor = "#FFFFFF";
+    } else {
+      textColor = "#000000";
+    }
   }
-
 
   return (
     <div
@@ -29,8 +29,12 @@ const Card = (props) => {
     >
       Perfil de Mago
       <h2 className="text-2xl font-bold">{props.wizard.name}</h2>
-      <div className="w-5">
-      <img src={props.wizard.image} alt="" className="w-full object-contain" />
+      <div className="w-[60%] ">
+        <img
+          src={props.wizard.image}
+          alt=""
+          className=" object-cover rounded-full"
+        />
       </div>
       <p>Casa: {props.wizard.house}</p>
       <p className="flex flex-col items-center">

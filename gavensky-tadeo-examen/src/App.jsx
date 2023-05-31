@@ -13,8 +13,6 @@ function App() {
 
   const [characters, setCharacters] = useState([{}]);
 
-  const [character, setCharacter] = useState("");
-
   const houses = ["Gryffindor", "Hufflepuff", "Slytherin", "Ravenclaw"];
 
   const url = "https://hp-api.onrender.com/api/characters";
@@ -47,7 +45,7 @@ function App() {
   }, []);
 
   const handleFirstInput = (e) => {
-    if (!regex.test(e.target.value)) {
+    if (!regex.test(e.target.value) && e.target.value.length > 0) {
       setErrorMsg("Por favor chequea que la información sea correcta");
 
       isError(true);
@@ -63,7 +61,7 @@ function App() {
   };
 
   const handleSecondInput = (e) => {
-    if (e.target.value.length < 6) {
+    if (e.target.value.length > 0 && e.target.value.length < 6) {
       setErrorMsg("Por favor chequea que la información sea correcta");
 
       isError(true);
@@ -134,22 +132,23 @@ function App() {
           <div className="flex flex-col">
             <label>Personaje de Harry Potter favorito</label>
             <select
-              className="border-gray-500 border-2 rounded-md  px-2 py-1"
+              className="border-gray-500 border-2 rounded-md px-2 py-1"
               onChange={(e) => {
-                console.log("e.target.value :>> ", e.target.value);
+                const selectedCharacter = JSON.parse(e.target.value); // Parse the selected value as an object
+                console.log("selectedCharacter: ", selectedCharacter);
                 setWizard((prevState) => ({
                   ...prevState,
-                  favourite_harry_potter_character: e.target.value,
+                  favourite_harry_potter_character: selectedCharacter.name,
+                  image: selectedCharacter.image
                 }));
               }}
             >
-              {characters.map((character, index) => {
-                return (
-                  <option key={index} value={character.name}>
-                    {character.name}
-                  </option>
-                );
-              })}
+              {characters.map((character, index) => (
+                <option key={index} value={JSON.stringify(character)}>
+                  {" "}
+                  {character.name}
+                </option>
+              ))}
             </select>
           </div>
           <button className="bg-blue-300 text-white rounded-md px-2 py-1 mt-3 hover:bg-blue-500 transition-all duration-300 ease-in-out">
