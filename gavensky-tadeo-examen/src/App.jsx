@@ -3,23 +3,19 @@ import { useEffect, useState } from "react";
 import Card from "./components/Card";
 
 function App() {
-  const [student, setStudent] = useState({
-    name: "",
-    commission: "",
-    favourite_harry_potter_character: "",
-  });
+  const [wizard, setWizard] = useState({});
 
-  const [students, setStudents] = useState([]);
+  const [wizards, setWizards] = useState([]);
 
-  const [errorMsg, setErrorMsg] = useState({
-    firstInput: "",
-    secondInput: "",
-    general: "",
-  });
+  const [errorMsg, setErrorMsg] = useState("");
 
   const [error, isError] = useState(false);
 
   const [characters, setCharacters] = useState([{}]);
+
+  const [character, setCharacter] = useState("");
+
+  const houses = ["Gryffindor", "Hufflepuff", "Slytherin", "Ravenclaw"];
 
   const url = "https://hp-api.onrender.com/api/characters";
 
@@ -27,13 +23,11 @@ function App() {
     e.preventDefault();
 
     if (error) {
-      setErrorMsg((prevState) => ({
-        ...prevState,
-        general: "Por favor chequea que la información sea correcta",
-      }));
+      setErrorMsg("Por favor chequea que la información sea correcta");
     } else {
-      console.log("student :>> ", student);
-      setStudents((prevState) => [...prevState, student]);
+      console.log("wizard :>> ", wizard);
+
+      setWizards((prevState) => [...prevState, wizard]);
     }
   };
 
@@ -54,19 +48,14 @@ function App() {
 
   const handleFirstInput = (e) => {
     if (!regex.test(e.target.value)) {
-      setErrorMsg((prevState) => ({
-        ...prevState,
-        firstInput: "El nombre debe ser mayor a 3 caracteres",
-      }));
+      setErrorMsg("Por favor chequea que la información sea correcta");
 
       isError(true);
     } else {
       isError(false);
-      setErrorMsg((prevState) => {
-        ({ ...prevState, firstInput: "" });
-      });
+      setErrorMsg("");
 
-      setStudent((prevState) => ({
+      setWizard((prevState) => ({
         ...prevState,
         name: e.target.value,
       }));
@@ -74,37 +63,30 @@ function App() {
   };
 
   const handleSecondInput = (e) => {
-    console.log('e.target.value.length :>> ', e.target.value.length);
     if (e.target.value.length < 6) {
-      setErrorMsg((prevState) => {
-        ({
-          ...prevState,
-          secondInput: "El x debe ser mayor a 6 caracteres",
-        });
-      });
-      console.log('errorMsg.secondInput :>> ', errorMsg.secondInput);
+      setErrorMsg("Por favor chequea que la información sea correcta");
 
       isError(true);
     } else {
       isError(false);
-      setErrorMsg((prevState) => {
-        ({ ...prevState, secondInput: "" });
-      });
+      setErrorMsg("");
 
-      setStudent((prevState) => ({
+      setWizard((prevState) => ({
         ...prevState,
-        commission: e.target.value,
+        color: e.target.value,
       }));
     }
   };
 
   return (
-    <div className="flex flex-col justify-center items-center gap-3 mt  -10">
+    <div className="flex flex-col justify-center items-center gap-3 mt-10">
       <div className="flex flex-col items-center">
-        <h1>Carga de estudiantes</h1>
+        <h1 className="text-2xl font-bold mb-4">
+          Crea tu perfil del Wizarding World
+        </h1>
         <form
           onSubmit={handleSubmit}
-          className="flex flex-col items-center  bg-white rounded-md w-[300px] shadow-md p-4 gap-2"
+          className="flex flex-col items-center  bg-white rounded-md w-[300px] shadow-md p-4 gap-2 text-center"
         >
           <div className="flex flex-col">
             <label>Nombre</label>
@@ -116,12 +98,9 @@ function App() {
                 handleFirstInput(e);
               }}
             />
-            {errorMsg && errorMsg.firstInput && (
-              <span className="text-red-500">{errorMsg.firstInput}</span>
-            )}
           </div>
           <div className="flex flex-col">
-            <label>Camada</label>
+            <label>Ingresar tu color favorito (HEX)</label>
             <input
               type="text"
               placeholder=""
@@ -130,9 +109,27 @@ function App() {
                 handleSecondInput(e);
               }}
             />
-            {errorMsg && errorMsg.secondInput && (
-              <span className="text-red-500">{errorMsg.secondInput}</span>
-            )}
+          </div>
+          <div className="flex flex-col">
+            <label>Elegí tu casa de Hogwarts</label>
+            <select
+              className="border-gray-500 border-2 rounded-md  px-2 py-1"
+              onChange={(e) => {
+                console.log("e.target.value :>> ", e.target.value);
+                setWizard((prevState) => ({
+                  ...prevState,
+                  house: e.target.value,
+                }));
+              }}
+            >
+              {houses.map((house, index) => {
+                return (
+                  <option key={index} value={house}>
+                    {house}
+                  </option>
+                );
+              })}
+            </select>
           </div>
           <div className="flex flex-col">
             <label>Personaje de Harry Potter favorito</label>
@@ -140,7 +137,7 @@ function App() {
               className="border-gray-500 border-2 rounded-md  px-2 py-1"
               onChange={(e) => {
                 console.log("e.target.value :>> ", e.target.value);
-                setStudent((prevState) => ({
+                setWizard((prevState) => ({
                   ...prevState,
                   favourite_harry_potter_character: e.target.value,
                 }));
@@ -156,20 +153,18 @@ function App() {
             </select>
           </div>
           <button className="bg-blue-300 text-white rounded-md px-2 py-1 mt-3 hover:bg-blue-500 transition-all duration-300 ease-in-out">
-            Agregar estudiante
+            Agregar mago
           </button>
         </form>
       </div>
 
-      {errorMsg && errorMsg.general && (
-        <span className="text-red-500 font-bold">{errorMsg.general}</span>
-      )}
+      {errorMsg && <span className="text-red-500 font-bold">{errorMsg}</span>}
 
       <div className="grid grid-flow-row-dense grid-cols-3 gap-3">
-        {students.map((student, index) => {
+        {wizards.map((wizard, index) => {
           return (
             <div key={index}>
-              <Card student={student} />
+              <Card wizard={wizard} />
             </div>
           );
         })}
