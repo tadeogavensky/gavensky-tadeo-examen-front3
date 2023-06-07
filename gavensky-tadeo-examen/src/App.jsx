@@ -159,7 +159,7 @@ function App() {
 
       {errorMsg && <span className="text-red-500 font-bold">{errorMsg}</span>}
 
-      <div className="grid grid-flow-row-dense grid-cols-3 gap-3">
+      <div className="sm:grid grid-flow-row-dense grid-cols-3 gap-3">
         {wizards.map((wizard, index) => {
           return (
             <div key={index}>
